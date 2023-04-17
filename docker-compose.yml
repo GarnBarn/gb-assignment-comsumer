@@ -1,0 +1,33 @@
+version: 3.0.0
+services:
+  db-assignment:
+    image: mysql:8.0.32
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=P@ssw0rd
+      - MYSQL_DATABASE=garnbarn-assignment
+
+  rabbit:
+    image: rabbitmq:management-alpine
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - type: bind
+        source: ./rabbitmq/rabbitmq.config
+        target: /etc/rabbitmq/rabbitmq.config
+      - type: bind
+        source: ./rabbitmq/rabbitmq-definitions.json
+        target: /etc/rabbitmq/rabbitmq-definitions.json
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.1
+    restart: always
+    ports:
+      - 8080:80
+    links:
+      - db-assignment
