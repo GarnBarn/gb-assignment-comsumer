@@ -37,6 +37,9 @@ func (p *Processor) Process(d rabbitmq.Delivery) rabbitmq.Action {
 	err = p.assignmentRepository.CreateAssignment(&assignment)
 	if err != nil {
 		logrus.Error("Can't save data: ", err)
+		return rabbitmq.Ack
 	}
+
+	logrus.Info("Successfully created the assignment id: ", assignment.ID)
 	return rabbitmq.Ack
 }

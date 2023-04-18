@@ -64,7 +64,11 @@ func main() {
 
 	consumer, err := rabbitmq.NewConsumer(
 		conn,
-		processor.Process,
+		func(d rabbitmq.Delivery) (action rabbitmq.Action) {
+			logrus.Info("Start Processing the message")
+			defer logrus.Info("End Processing the message")
+			return processor.Process(d)
+		},
 		appConfig.RABBITMQ_ASSIGNMENT_CREATE_QUEUE,
 		rabbitmq.WithConsumerOptionsQueueDurable,
 	)

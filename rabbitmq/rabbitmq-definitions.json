@@ -12,7 +12,7 @@
   ],
   "queues": [
     {
-      "name": "assignment.update",
+      "name": "assignment.create.update",
       "vhost": "/",
       "durable": true,
       "auto_delete": false,
@@ -23,9 +23,9 @@
     {
       "source": "assignment",
       "vhost": "/",
-      "destination": "assignment.update",
+      "destination": "assignment.create.update",
       "destination_type": "queue",
-      "routing_key": ".*",
+      "routing_key": "create",
       "arguments": {}
     }
   ],
