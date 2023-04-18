@@ -38,8 +38,17 @@ func main() {
 		httpServer.Run(fmt.Sprint(":", appConfig.HTTP_SERVER_PORT))
 	}()
 
+	publisher, err := rabbitmq.NewPublisher(
+		conn,
+		rabbitmq.WithPublisherOptionsLogging,
+		rabbitmq.WithPublisherOptionsExchangeName(appConfig.RABBITMQ_ASSIGNMENT_EXCHANGE),
+	)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
 	// Create Processor
-	processor := processor.NewProcessor()
+	processor := processor.NewProcessor(publisher)
 
 	consumer, err := rabbitmq.NewConsumer(
 		conn,
@@ -58,6 +67,7 @@ func main() {
 
 	logrus.Info("Gracefully shutting down.")
 	consumer.Close()
+	publisher.Close()
 	conn.Close()
 
 	logrus.Info("Successfully shutting down the amqp. Bye!!")
