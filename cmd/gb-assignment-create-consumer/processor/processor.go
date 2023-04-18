@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	globalmodel "github.com/GarnBarn/common-go/model"
+	rabbitMQ "github.com/GarnBarn/common-go/rabbitmq"
 	"github.com/GarnBarn/gb-assignment-consumer/pkg/repository"
 	"github.com/sirupsen/logrus"
 	"github.com/wagslane/go-rabbitmq"
@@ -14,7 +15,7 @@ type Processor struct {
 	assignmentRepository repository.AssignmentRepository
 }
 
-func NewProcessor(rabbitmqPublisher *rabbitmq.Publisher, assignmentRepository repository.AssignmentRepository) Processor {
+func NewProcessor(rabbitmqPublisher *rabbitmq.Publisher, assignmentRepository repository.AssignmentRepository) rabbitMQ.Processor {
 	return Processor{
 		rabbitmqPublisher:    rabbitmqPublisher,
 		assignmentRepository: assignmentRepository,
@@ -26,7 +27,7 @@ const (
 	RoutingKeyDelete  = "delete"
 )
 
-func (p *Processor) Process(d rabbitmq.Delivery) error {
+func (p Processor) Process(d rabbitmq.Delivery) error {
 	assignment := globalmodel.Assignment{}
 	err := json.Unmarshal(d.Body, &assignment)
 	if err != nil {
