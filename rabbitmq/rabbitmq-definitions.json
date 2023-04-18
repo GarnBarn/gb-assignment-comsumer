@@ -3,7 +3,16 @@
     {
       "name": "assignment",
       "vhost": "/",
-      "type": "fanout",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "assignment.fail",
+      "vhost": "/",
+      "type": "direct",
       "durable": true,
       "auto_delete": false,
       "internal": false,
@@ -12,7 +21,14 @@
   ],
   "queues": [
     {
-      "name": "create-assignment-queue",
+      "name": "assignment.create.update",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "assignment.fail.create.update",
       "vhost": "/",
       "durable": true,
       "auto_delete": false,
@@ -23,7 +39,15 @@
     {
       "source": "assignment",
       "vhost": "/",
-      "destination": "create-assignment-queue",
+      "destination": "assignment.create.update",
+      "destination_type": "queue",
+      "routing_key": "create",
+      "arguments": {}
+    },
+    {
+      "source": "assignment.fail",
+      "vhost": "/",
+      "destination": "assignment.fail.create.update",
       "destination_type": "queue",
       "routing_key": "create",
       "arguments": {}
