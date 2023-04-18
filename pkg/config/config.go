@@ -9,11 +9,12 @@ import (
 )
 
 type Config struct {
-	Env                          string
-	HTTP_SERVER_PORT             string `envconfig:"HTTP_SERVER_PORT" default:"3002"`
-	RABBITMQ_CONNECTION          string `envconfig:"RABBITMQ_CONNECTION" default:"amqp://guest:guest@localhost:5672"`
-	RABBITMQ_ASSIGNMENT_QUEUE    string `envconfig:"RABBITMQ_ASSIGNMENT_QUEUE" default:"assignment.updated"`
-	RABBITMQ_ASSIGNMENT_EXCHANGE string `envconfig:"RABBITMQ_ASSIGNMENT_EXCHANGE" default:"assignment"`
+	Env                              string
+	HTTP_SERVER_PORT                 string `envconfig:"HTTP_SERVER_PORT" default:"3003"`
+	MYSQL_CONNECTION_STRING          string `envconfig:"MYSQL_CONNECTION_STRING"`
+	RABBITMQ_CONNECTION              string `envconfig:"RABBITMQ_CONNECTION" default:"amqp://guest:guest@localhost:5672"`
+	RABBITMQ_ASSIGNMENT_EXCHANGE     string `envconfig:"RABBITMQ_ASSIGNMENT_EXCHANGE" default:"assignment"`
+	RABBITMQ_ASSIGNMENT_CREATE_QUEUE string `envconfig:"RABBITMQ_ASSIGNMENT_CREATE_QUEUE" default:"assignmen.create.update"`
 }
 
 func Load() Config {

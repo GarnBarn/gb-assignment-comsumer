@@ -6,9 +6,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/GarnBarn/common-go/database"
 	"github.com/GarnBarn/common-go/httpserver"
-	"github.com/GarnBarn/gb-assignment-consumer/config"
-	"github.com/GarnBarn/gb-assignment-consumer/processor"
+	"github.com/GarnBarn/gb-assignment-consumer/cmd/gb-assignment-create-consumer/processor"
+	"github.com/GarnBarn/gb-assignment-consumer/pkg/config"
+	"github.com/GarnBarn/gb-assignment-consumer/pkg/repository"
 	"github.com/sirupsen/logrus"
 	"github.com/wagslane/go-rabbitmq"
 )
@@ -31,6 +33,13 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	// Connect Database
+	db, err := database.Conn(appConfig.MYSQL_CONNECTION_STRING)
+	if err != nil {
+		logrus.Fatalln("Can't connect to database: ", err)
+		return
+	}
+
 	// Start HealthChecking Server
 	go func() {
 		httpServer := httpserver.NewHttpServer()
@@ -47,13 +56,16 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	// Create Repository
+	assignmentRepository := repository.NewAssignmentRepository(db)
+
 	// Create Processor
-	processor := processor.NewProcessor(publisher)
+	processor := processor.NewProcessor(publisher, assignmentRepository)
 
 	consumer, err := rabbitmq.NewConsumer(
 		conn,
 		processor.Process,
-		appConfig.RABBITMQ_ASSIGNMENT_QUEUE,
+		appConfig.RABBITMQ_ASSIGNMENT_CREATE_QUEUE,
 		rabbitmq.WithConsumerOptionsQueueDurable,
 	)
 	if err != nil {
