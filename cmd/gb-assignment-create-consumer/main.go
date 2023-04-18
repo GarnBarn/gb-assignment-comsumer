@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/GarnBarn/common-go/database"
@@ -67,7 +68,44 @@ func main() {
 		func(d rabbitmq.Delivery) (action rabbitmq.Action) {
 			logrus.Info("Start Processing the message")
 			defer logrus.Info("End Processing the message")
-			return processor.Process(d)
+			err := processor.Process(d)
+
+			if err != nil {
+				value, ok := d.Headers["x-retry"]
+				retryCount := 0
+				if ok {
+					convertResult, err := strconv.Atoi(fmt.Sprint(value))
+					if err != nil {
+						convertResult = 0
+					}
+					retryCount = convertResult
+				}
+
+				retryCount++
+
+				rabbitMqHeaderTable := rabbitmq.Table{
+					"x-retry": retryCount,
+				}
+
+				if retryCount >= appConfig.RABBITMQ_MAXIMUM_RETRY {
+					logrus.Warn("Maximum retry exceeded, Publishing the message to dead lettering exchange")
+					publisher.Publish(d.Body, []string{d.RoutingKey},
+						rabbitmq.WithPublishOptionsExchange(appConfig.RABBITMQ_DEAD_LETTERING_EXCHANGE),
+						rabbitmq.WithPublishOptionsContentType(d.ContentType),
+						rabbitmq.WithPublishOptionsHeaders(rabbitMqHeaderTable),
+					)
+					return rabbitmq.Ack
+				}
+
+				logrus.Warn("Publishing message back to exchange, ")
+				publisher.Publish(d.Body, []string{d.RoutingKey},
+					rabbitmq.WithPublishOptionsExchange(appConfig.RABBITMQ_ASSIGNMENT_EXCHANGE),
+					rabbitmq.WithPublishOptionsContentType(d.ContentType),
+					rabbitmq.WithPublishOptionsHeaders(rabbitMqHeaderTable),
+				)
+			}
+
+			return rabbitmq.Ack
 		},
 		appConfig.RABBITMQ_ASSIGNMENT_CREATE_QUEUE,
 		rabbitmq.WithConsumerOptionsQueueDurable,

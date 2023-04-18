@@ -26,20 +26,20 @@ const (
 	RoutingKeyDelete  = "delete"
 )
 
-func (p *Processor) Process(d rabbitmq.Delivery) rabbitmq.Action {
+func (p *Processor) Process(d rabbitmq.Delivery) error {
 	assignment := globalmodel.Assignment{}
 	err := json.Unmarshal(d.Body, &assignment)
 	if err != nil {
 		logrus.Error("Can't unmarshal data: ", err)
-		return rabbitmq.Ack
+		return err
 	}
 
 	err = p.assignmentRepository.CreateAssignment(&assignment)
 	if err != nil {
 		logrus.Error("Can't save data: ", err)
-		return rabbitmq.Ack
+		return err
 	}
 
 	logrus.Info("Successfully created the assignment id: ", assignment.ID)
-	return rabbitmq.Ack
+	return nil
 }
