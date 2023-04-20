@@ -33,6 +33,20 @@
       "durable": true,
       "auto_delete": false,
       "arguments": {}
+    },
+    {
+      "name": "assignment.delete.update",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "assignment.fail.delete.update",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
     }
   ],
   "bindings": [
@@ -50,6 +64,22 @@
       "destination": "assignment.fail.create.update",
       "destination_type": "queue",
       "routing_key": "create",
+      "arguments": {}
+    },
+    {
+      "source": "assignment",
+      "vhost": "/",
+      "destination": "assignment.delete.update",
+      "destination_type": "queue",
+      "routing_key": "delete",
+      "arguments": {}
+    },
+    {
+      "source": "assignment.fail",
+      "vhost": "/",
+      "destination": "assignment.fail.delete.update",
+      "destination_type": "queue",
+      "routing_key": "delete",
       "arguments": {}
     }
   ],

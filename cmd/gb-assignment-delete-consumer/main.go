@@ -9,7 +9,7 @@ import (
 	"github.com/GarnBarn/common-go/database"
 	"github.com/GarnBarn/common-go/httpserver"
 	"github.com/GarnBarn/common-go/rabbitmq"
-	"github.com/GarnBarn/gb-assignment-consumer/cmd/gb-assignment-create-consumer/processor"
+	"github.com/GarnBarn/gb-assignment-consumer/cmd/gb-assignment-delete-consumer/processor"
 	"github.com/GarnBarn/gb-assignment-consumer/pkg/config"
 	"github.com/GarnBarn/gb-assignment-consumer/pkg/repository"
 	"github.com/sirupsen/logrus"
@@ -39,8 +39,8 @@ func main() {
 	// Start HealthChecking Server
 	go func() {
 		httpServer := httpserver.NewHttpServer()
-		logrus.Info("Listening and serving HTTP on :", appConfig.CREATE_ASSIGNMENT_HTTP_SERVER_PORT)
-		httpServer.Run(fmt.Sprint(":", appConfig.CREATE_ASSIGNMENT_HTTP_SERVER_PORT))
+		logrus.Info("Listening and serving HTTP on :", appConfig.DELETE_ASSIGNMENT_HTTP_SERVER_PORT)
+		httpServer.Run(fmt.Sprint(":", appConfig.DELETE_ASSIGNMENT_HTTP_SERVER_PORT))
 	}()
 
 	// Create Repository
@@ -53,7 +53,7 @@ func main() {
 		MaxRetry:           appConfig.RABBITMQ_MAXIMUM_RETRY,
 		FailoverExchange:   appConfig.RABBITMQ_ASSIGNMENT_EXCHANGE,
 		DeadLetterExchange: appConfig.RABBITMQ_DEAD_LETTERING_EXCHANGE,
-		ConsumeQueue:       appConfig.RABBITMQ_ASSIGNMENT_CREATE_QUEUE,
+		ConsumeQueue:       appConfig.RABBITMQ_ASSIGNMENT_DELETE_QUEUE,
 	})
 
 	if err != nil {
