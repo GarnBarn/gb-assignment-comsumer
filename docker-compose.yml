@@ -31,3 +31,5 @@ services:
       - 8080:80
     links:
       - db-assignment
+    environment:
+      - PMA_HOST=db-assignment
