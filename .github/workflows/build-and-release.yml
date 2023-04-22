@@ -45,7 +45,7 @@ jobs:
     needs: release-on-github
     strategy:
       matrix:
-        apps: ["gb-assignment-create-consumer"]
+        apps: ["gb-assignment-create-consumer", "gb-assignment-delete-consumer"]
     steps:
       # Fetch all repository details (Including tag for semver).
       - uses: actions/checkout@v3
